@@ -34,8 +34,8 @@
 
 - 기본 표현
   - `momentary`
-  - custom capability `kocomcommunity.elevatorDirection`
-  - custom capability `kocomcommunity.elevatorFloor`
+  - custom capability `earthgarden50570.elevatorDirection`
+  - custom capability `earthgarden50570.elevatorFloor`
 - 현재 상태
   - Home Assistant 레퍼런스 기반 기본 해석 포함
 - 주의점
@@ -44,7 +44,7 @@
 ## 가스
 
 - 기본 표현
-  - custom capability `kocomcommunity.closeOnlyValve`
+  - custom capability `earthgarden50570.closeOnlyValve`
 - 현재 상태
   - close-only 동작이 기본
 - 주의점

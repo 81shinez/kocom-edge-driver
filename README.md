@@ -20,8 +20,8 @@ SmartThings Hub가 LAN TCP-RS485 브리지(EW11 계열 포함)에 연결되고, 
 | 콘센트 | `switch` | 기본 지원 |
 | 난방 | `thermostatMode`, `thermostatHeatingSetpoint`, `temperatureMeasurement` | 기본 지원 |
 | 환기 | `switch`, `switchLevel` | 기본 지원 |
-| 가스 | `kocomcommunity.closeOnlyValve` | 닫기 전용 지원 |
-| 엘리베이터 | `momentary`, `kocomcommunity.elevatorDirection`, `kocomcommunity.elevatorFloor` | 기본 지원 |
+| 가스 | `earthgarden50570.closeOnlyValve` | 닫기 전용 지원 |
+| 엘리베이터 | `momentary`, `earthgarden50570.elevatorDirection`, `earthgarden50570.elevatorFloor` | 기본 지원 |
 | 모션 | `motionSensor` | 기본 지원 |
 | 공기질 | `carbonDioxideMeasurement`, `temperatureMeasurement`, `relativeHumidityMeasurement` | 기본 지원 |
 | 공동현관문 / 현관문 | `momentary`, `contactSensor` | capture + override 기반 |
@@ -80,6 +80,19 @@ elevator-1-0-none
 
 ```powershell
 .\.tools\smartthings-cli\smartthings.cmd edge:drivers:package --install .
+```
+
+### 2-1. 릴리스 버전 규칙
+
+- 릴리스 버전은 `v{major}.{minor}.{patch}` 형식을 사용합니다.
+- 루트 `VERSION` 파일 값과 git tag를 같은 값으로 유지합니다.
+- 실제 배포 전에는 커밋을 만들고 해당 버전으로 git tag를 생성합니다.
+
+예:
+
+```powershell
+Get-Content .\VERSION
+git tag v0.1.0
 ```
 
 ### 3. SmartThings 앱에서 추가
@@ -171,3 +184,4 @@ src/test/                  integration_test 스타일 테스트
 - 네트워크 소켓은 `cosock.socket`만 사용합니다.
 - 부모가 offline이면 해당 부모의 child 전체를 offline으로 전파합니다.
 - override나 프로토콜 해석을 바꾸면 관련 문서도 같은 범위에서 함께 갱신합니다.
+- 현재 배포 기준 custom capability namespace는 `earthgarden50570`입니다. 다른 계정으로 배포할 때는 이 namespace와 capability 원본을 함께 조정합니다.

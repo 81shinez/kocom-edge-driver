@@ -1,0 +1,24 @@
+{
+  "name": "Close Only Valve",
+  "attributes": {
+    "valve": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": ["closed", "unknown"]
+          }
+        },
+        "additionalProperties": false,
+        "required": ["value"]
+      }
+    }
+  },
+  "commands": {
+    "close": {
+      "name": "close",
+      "arguments": []
+    }
+  }
+}

@@ -37,6 +37,7 @@
 
 - profile 파일명은 사람이 읽기 쉬운 이름을 사용한다.
 - custom capability는 최소한으로 유지한다.
+- 배포 전에는 custom capability namespace가 현재 SmartThings 계정 namespace와 일치하는지 확인한다.
 - profile이 바뀌면 관련 문서와 테스트를 같이 수정한다.
 
 ## 문서화 원칙

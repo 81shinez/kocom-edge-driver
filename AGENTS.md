@@ -61,6 +61,7 @@
 - `deviceCodeOverrides`는 표준 장치 코드를 덮어쓸 때만 사용한다.
 - `commandOverrides`는 특정 child key 또는 device type의 raw packet override를 지정할 때만 사용한다.
 - override를 추가하면 `docs/protocol.md`와 `docs/special-features.md`를 같이 갱신한다.
+- 현재 배포 대상 계정의 custom capability namespace는 `earthgarden50570`이다. custom capability ID를 바꾸면 `src/constants.lua`, `profiles/`, `capabilities/`, `README.md`, `docs/special-features.md`를 같은 변경 단위에서 함께 수정한다.
 
 ## 테스트 / 검증 체크리스트
 

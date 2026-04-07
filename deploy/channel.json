@@ -1,0 +1,6 @@
+{
+  "name": "Kocom Wallpad",
+  "description": "Kocom Wallpad SmartThings Edge driver deployment channel",
+  "termsOfServiceUrl": "https://github.com/lunDreame/kocom-wallpad",
+  "type": "DRIVER"
+}

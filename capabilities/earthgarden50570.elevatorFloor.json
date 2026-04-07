@@ -1,0 +1,19 @@
+{
+  "name": "Elevator Floor",
+  "attributes": {
+    "floor": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 8
+          }
+        },
+        "additionalProperties": false,
+        "required": ["value"]
+      }
+    }
+  },
+  "commands": {}
+}

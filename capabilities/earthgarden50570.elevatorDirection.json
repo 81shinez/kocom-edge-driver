@@ -1,0 +1,19 @@
+{
+  "name": "Elevator Direction",
+  "attributes": {
+    "direction": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": ["idle", "called", "downward", "upward", "arrival", "unknown"]
+          }
+        },
+        "additionalProperties": false,
+        "required": ["value"]
+      }
+    }
+  },
+  "commands": {}
+}

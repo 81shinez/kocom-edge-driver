@@ -2,7 +2,7 @@ name: gas-close-only
 components:
   - id: main
     capabilities:
-      - id: kocomcommunity.closeOnlyValve
+      - id: earthgarden50570.closeOnlyValve
         version: 1
       - id: refresh
         version: 1

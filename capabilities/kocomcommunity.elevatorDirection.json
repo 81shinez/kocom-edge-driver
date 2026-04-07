@@ -1,5 +1,5 @@
 {
-  "id": "kocomcommunity.elevatorDirection",
+  "id": "earthgarden50570.elevatorDirection",
   "version": 1,
   "status": "proposed",
   "name": "Elevator Direction",
@@ -15,7 +15,7 @@
   },
   "commands": {},
   "metadata": {
-    "mnmn": "SmartThingsCommunity",
-    "vid": "kocomcommunity.elevatorDirection"
+    "mnmn": "earthgarden50570",
+    "vid": "earthgarden50570.elevatorDirection"
   }
 }

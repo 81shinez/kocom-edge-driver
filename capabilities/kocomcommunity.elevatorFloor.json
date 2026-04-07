@@ -1,5 +1,5 @@
 {
-  "id": "kocomcommunity.elevatorFloor",
+  "id": "earthgarden50570.elevatorFloor",
   "version": 1,
   "status": "proposed",
   "name": "Elevator Floor",
@@ -15,7 +15,7 @@
   },
   "commands": {},
   "metadata": {
-    "mnmn": "SmartThingsCommunity",
-    "vid": "kocomcommunity.elevatorFloor"
+    "mnmn": "earthgarden50570",
+    "vid": "earthgarden50570.elevatorFloor"
   }
 }

@@ -21,9 +21,9 @@ constants.MONITOR_INTERVAL_SEC = 120
 constants.PARENT_PROFILE = "gateway"
 
 constants.CAPABILITIES = {
-  elevator_direction = "kocomcommunity.elevatorDirection",
-  elevator_floor = "kocomcommunity.elevatorFloor",
-  close_only_valve = "kocomcommunity.closeOnlyValve",
+  elevator_direction = "earthgarden50570.elevatorDirection",
+  elevator_floor = "earthgarden50570.elevatorFloor",
+  close_only_valve = "earthgarden50570.closeOnlyValve",
 }
 
 constants.FIELDS = {

@@ -4,9 +4,9 @@ components:
     capabilities:
       - id: momentary
         version: 1
-      - id: kocomcommunity.elevatorDirection
+      - id: earthgarden50570.elevatorDirection
         version: 1
-      - id: kocomcommunity.elevatorFloor
+      - id: earthgarden50570.elevatorFloor
         version: 1
       - id: refresh
         version: 1

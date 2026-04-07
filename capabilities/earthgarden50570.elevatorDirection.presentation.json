@@ -1,0 +1,23 @@
+{
+  "dashboard": {
+    "states": [
+      {
+        "label": "{{direction.value}}"
+      }
+    ],
+    "actions": []
+  },
+  "detailView": [
+    {
+      "label": "Direction",
+      "displayType": "state",
+      "state": {
+        "label": "{{direction.value}}"
+      }
+    }
+  ],
+  "automation": {
+    "conditions": [],
+    "actions": []
+  }
+}

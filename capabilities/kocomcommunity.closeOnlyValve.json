@@ -1,5 +1,5 @@
 {
-  "id": "kocomcommunity.closeOnlyValve",
+  "id": "earthgarden50570.closeOnlyValve",
   "version": 1,
   "status": "proposed",
   "name": "Close Only Valve",
@@ -20,7 +20,7 @@
     }
   },
   "metadata": {
-    "mnmn": "SmartThingsCommunity",
-    "vid": "kocomcommunity.closeOnlyValve"
+    "mnmn": "earthgarden50570",
+    "vid": "earthgarden50570.closeOnlyValve"
   }
 }
