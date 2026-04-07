@@ -76,8 +76,15 @@
 
 ## 문서 갱신 규칙
 
+- 사용자가 처음 보는 진입 정보가 바뀌면 `README.md`를 같이 수정한다.
+- 지원 범위, 설치 방법, 배포 흐름, `VERSION`, `deploy/` 메타가 바뀌면 `README.md`를 같은 변경 단위에서 갱신한다.
 - 구조 변경 시 `docs/architecture.md`를 같이 수정한다.
 - 프로토콜 해석 변경 시 `docs/protocol.md`를 같이 수정한다.
 - 컨벤션 변경 시 `docs/conventions.md`를 같이 수정한다.
 - 특수 기능 지원 범위가 바뀌면 `docs/special-features.md`를 같이 수정한다.
 - 새 작업자가 이 파일만 읽고도 어디를 먼저 봐야 하는지 알 수 있어야 한다.
+
+## Packaging Constraints
+- Check [docs/deployment-constraints.md](/C:/projects/kocom-edge-driver/docs/deployment-constraints.md) before changing parent preferences or gas profile metadata.
+- Keep `protocolPreset` as a string preference until SmartThings package upload accepts the enum variant used by this repo.
+- Keep `deviceCodeOverrides` and `commandOverrides` within the packaging-safe preference limits documented in `docs/deployment-constraints.md`.

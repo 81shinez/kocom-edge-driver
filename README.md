@@ -9,6 +9,7 @@ SmartThings Hub가 LAN TCP-RS485 브리지(EW11 계열 포함)에 연결되고, 
 - 부모 gateway device + 동적 child device 구조
 - 상태 프레임 기반 child 자동 생성
 - command confirmation / retry / reconnect 처리
+- child 마지막 상태 기반 registry 복원
 - 문서화된 `deviceCodeOverrides`, `commandOverrides` 지원
 - 특수 기능 frame capture 기반 확장 포인트 제공
 
@@ -38,7 +39,7 @@ SmartThings Hub가 LAN TCP-RS485 브리지(EW11 계열 포함)에 연결되고, 
 2. 부모 device preference에 브리지 `host`, `port`를 입력합니다.
 3. 드라이버가 TCP 세션을 열고 코콤 프레임을 수신합니다.
 4. 프레임이 장치 상태로 해석되면 필요한 child device를 생성하고 상태를 반영합니다.
-5. child command는 부모 세션을 통해 raw packet으로 전송되고, 후속 confirmation frame으로 성공 여부를 확인합니다.
+5. child command는 부모 세션을 통해 raw packet으로 전송되며, 기본 생성 명령은 confirmation frame으로 성공 여부를 확인합니다.
 
 child key 형식은 아래와 같습니다.
 
@@ -62,10 +63,11 @@ elevator-1-0-none
 - 코콤 월패드와 연결된 TCP-RS485 브리지
 - SmartThings CLI 로그인 환경
 
-이 저장소에는 Windows에서 바로 사용할 수 있는 CLI가 포함되어 있습니다.
+아래 명령은 `smartthings` CLI가 설치되어 있다는 전제입니다.
+로컬 개발 환경에 별도 래퍼를 두는 경우에는 같은 옵션을 해당 래퍼 경로로 실행하면 됩니다.
 
 ```powershell
-.\.tools\smartthings-cli\smartthings.cmd --version
+smartthings --version
 ```
 
 ### 2. 드라이버 패키징
@@ -73,13 +75,13 @@ elevator-1-0-none
 로컬 zip만 만들려면:
 
 ```powershell
-.\.tools\smartthings-cli\smartthings.cmd edge:drivers:package --build-only .artifacts\kocom-edge-driver.zip .
+smartthings edge:drivers:package --build-only .artifacts\kocom-edge-driver.zip .
 ```
 
 채널 할당과 허브 설치까지 진행하려면:
 
 ```powershell
-.\.tools\smartthings-cli\smartthings.cmd edge:drivers:package --install .
+smartthings edge:drivers:package --install .
 ```
 
 ### 2-1. 릴리스 버전 규칙
@@ -92,7 +94,7 @@ elevator-1-0-none
 
 ```powershell
 Get-Content .\VERSION
-git tag v0.1.0
+git tag v0.1.1
 ```
 
 ### 3. SmartThings 앱에서 추가
@@ -148,6 +150,8 @@ git tag v0.1.0
 
 ```text
 config.yml                 Edge 패키지 메타데이터
+VERSION                    릴리스 버전 기준값
+deploy/                    채널 배포 메타데이터
 profiles/                  부모 및 child profile
 capabilities/              custom capability 정의
 src/init.lua               얇은 드라이버 엔트리 포인트
@@ -159,6 +163,7 @@ src/child_devices.lua      child key, label, metadata
 src/emitter.lua            내부 상태 -> capability event
 src/kocom/                 transport, parser, protocol, registry, session
 src/test/                  integration_test 스타일 테스트
+LICENSE                    프로젝트 라이선스
 ```
 
 ### 테스트 포인트
@@ -166,13 +171,17 @@ src/test/                  integration_test 스타일 테스트
 현재 `src/test/`에는 아래 핵심 검증이 포함되어 있습니다.
 
 - discovery metadata 생성
+- lifecycle init 시 parent session 재기동
 - preference 파싱과 기본값 적용
 - frame split / checksum 처리
 - child key 생성 규칙
 - command packet 생성
+- persisted child update 기반 registry 복원
+- special frame capture 및 session 교체 시 정리 동작
 
 ## 관련 문서
 
+- [작업 가이드](AGENTS.md)
 - [아키텍처 개요](docs/architecture.md)
 - [코드 컨벤션](docs/conventions.md)
 - [프로토콜 메모](docs/protocol.md)
@@ -184,4 +193,5 @@ src/test/                  integration_test 스타일 테스트
 - 네트워크 소켓은 `cosock.socket`만 사용합니다.
 - 부모가 offline이면 해당 부모의 child 전체를 offline으로 전파합니다.
 - override나 프로토콜 해석을 바꾸면 관련 문서도 같은 범위에서 함께 갱신합니다.
+- 지원 범위, 설치 흐름, 버전 규칙, 배포 메타가 바뀌면 `README.md`도 같은 변경 단위에서 함께 갱신합니다.
 - 현재 배포 기준 custom capability namespace는 `earthgarden50570`입니다. 다른 계정으로 배포할 때는 이 namespace와 capability 원본을 함께 조정합니다.

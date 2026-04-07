@@ -51,7 +51,7 @@
 - 엘리베이터
   - 호출 가능 여부, 방향, 층수를 분리
 - 모션
-  - `binarySensor.motion`
+  - `motionSensor.motion`
 - 공기질
   - CO2, 온도, 습도는 표준 capability로 우선 노출
   - PM/VOC는 v1에서 raw state와 문서 기준으로만 보존하고, 필요 시 후속 profile 확장
@@ -66,7 +66,7 @@
   - 같은 room의 8회로 payload를 한 번에 전송
   - 대상 index만 새 상태로 갱신하고 나머지는 registry 캐시를 사용
 - 난방
-  - `set_hvac`, `set_temperature`, `set_preset` 지원
+  - `set_thermostat_mode`, `set_heating_setpoint` 지원
 - 환기
   - `switch` + `switchLevel` 기반으로 on/off/속도 전송
 - 가스
@@ -77,7 +77,8 @@
 ## Confirmation / Retry
 
 - 송신 전 idle gap을 확보한다.
-- 전송 후 예상 상태와 일치하는 후속 프레임을 기다린다.
+- 기본 생성 명령은 전송 후 예상 상태와 일치하는 후속 프레임을 기다린다.
+- `commandOverrides`로 `packetHex`를 직접 지정한 경우에는 matcher 없이 전송되며, `timeoutMs`가 없으면 확인 대기 없이 완료 처리된다.
 - 기본 재시도 횟수는 3회, 재시도 간격은 150ms, 확인 타임아웃은 1초를 사용한다.
 - 가스와 온도 설정은 더 긴 확인 시간을 허용한다.
 

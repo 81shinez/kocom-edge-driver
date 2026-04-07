@@ -9,8 +9,7 @@
       {
         "displayType": "pushButton",
         "pushButton": {
-          "command": "close",
-          "label": "Close"
+          "command": "close"
         }
       }
     ]
@@ -27,22 +26,12 @@
       "label": "Close",
       "displayType": "pushButton",
       "pushButton": {
-        "command": "close",
-        "label": "Close"
+        "command": "close"
       }
     }
   ],
   "automation": {
     "conditions": [],
-    "actions": [
-      {
-        "label": "Close",
-        "displayType": "pushButton",
-        "pushButton": {
-          "command": "close",
-          "label": "Close"
-        }
-      }
-    ]
+    "actions": []
   }
 }

@@ -5,11 +5,11 @@ components:
       - id: refresh
         version: 1
     categories:
-      - name: Hub
+      - name: Others
 preferences:
   - name: host
     title: Bridge Host
-    description: TCP-RS485 브리지의 IP 또는 호스트명
+    description: TCP-RS485 bridge IP address or hostname
     required: false
     preferenceType: string
     definition:
@@ -19,7 +19,7 @@ preferences:
       default: ''
   - name: port
     title: Bridge Port
-    description: TCP-RS485 브리지 포트
+    description: TCP-RS485 bridge port
     required: false
     preferenceType: integer
     definition:
@@ -28,43 +28,44 @@ preferences:
       default: 8899
   - name: protocolPreset
     title: Protocol Preset
-    description: 기본 코콤 프리셋 선택
+    description: Built-in protocol preset key
     required: false
-    preferenceType: enumeration
+    preferenceType: string
     definition:
-      options:
-        kocom-default: Kocom Default
+      stringType: text
+      minLength: 0
+      maxLength: 64
       default: kocom-default
   - name: deviceCodeOverrides
     title: Device Code Overrides
-    description: 장치 코드 override JSON
+    description: Device code override JSON
     required: false
     preferenceType: string
     definition:
-      stringType: paragraph
+      stringType: text
       minLength: 0
-      maxLength: 4096
-      default: ''
+      maxLength: 255
+      default: '{}'
   - name: commandOverrides
     title: Command Overrides
-    description: raw packet command override JSON
+    description: Raw packet command override JSON
     required: false
     preferenceType: string
     definition:
-      stringType: paragraph
+      stringType: text
       minLength: 0
-      maxLength: 8192
-      default: ''
+      maxLength: 255
+      default: '{}'
   - name: debugUnknownFrames
     title: Debug Unknown Frames
-    description: 미매핑 frame 로그 출력
+    description: Enable logs for unknown frames
     required: false
     preferenceType: boolean
     definition:
       default: false
   - name: captureSpecialFrames
     title: Capture Special Frames
-    description: 특수 기능 frame capture 활성화
+    description: Enable capture logs for special feature frames
     required: false
     preferenceType: boolean
     definition:
