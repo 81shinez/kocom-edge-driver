@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "states": [
+      {
+        "label": "{{direction.value}}"
+      }
+    ],
+    "actions": []
+  },
+  "detailView": [
+    {
+      "label": "Direction",
+      "displayType": "state",
+      "state": {
+        "label": "{{direction.value}}",
+        "value": "direction.value"
+      }
+    }
+  ],
+  "automation": {
+    "conditions": [
+      {
+        "label": "Direction",
+        "displayType": "list",
+        "list": {
+          "alternatives": [
+            { "key": "idle", "value": "Idle" },
+            { "key": "called", "value": "Called" },
+            { "key": "downward", "value": "Downward" },
+            { "key": "upward", "value": "Upward" },
+            { "key": "arrival", "value": "Arrival" },
+            { "key": "unknown", "value": "Unknown" }
+          ],
+          "value": "direction.value"
+        }
+      }
+    ],
+    "actions": []
+  }
+}

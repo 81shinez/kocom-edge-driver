@@ -1,0 +1,21 @@
+{
+  "id": "kocomcommunity.elevatorDirection",
+  "version": 1,
+  "status": "proposed",
+  "name": "Elevator Direction",
+  "attributes": {
+    "direction": {
+      "schema": {
+        "type": "string",
+        "enum": ["idle", "called", "downward", "upward", "arrival", "unknown"]
+      },
+      "setter": "setDirection",
+      "enumCommands": []
+    }
+  },
+  "commands": {},
+  "metadata": {
+    "mnmn": "SmartThingsCommunity",
+    "vid": "kocomcommunity.elevatorDirection"
+  }
+}

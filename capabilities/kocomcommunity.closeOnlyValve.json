@@ -1,0 +1,26 @@
+{
+  "id": "kocomcommunity.closeOnlyValve",
+  "version": 1,
+  "status": "proposed",
+  "name": "Close Only Valve",
+  "attributes": {
+    "valve": {
+      "schema": {
+        "type": "string",
+        "enum": ["closed", "unknown"]
+      },
+      "setter": "setValve",
+      "enumCommands": []
+    }
+  },
+  "commands": {
+    "close": {
+      "name": "close",
+      "arguments": []
+    }
+  },
+  "metadata": {
+    "mnmn": "SmartThingsCommunity",
+    "vid": "kocomcommunity.closeOnlyValve"
+  }
+}

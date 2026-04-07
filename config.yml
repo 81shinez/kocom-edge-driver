@@ -1,0 +1,7 @@
+name: 'Kocom Wallpad'
+packageKey: 'io.github.kocom.edge-driver'
+permissions:
+  lan: {}
+  discovery: {}
+description: 'SmartThings Edge LAN driver for Kocom wallpad RS485 bridges'
+vendorSupportInformation: 'https://github.com/lunDreame/kocom-wallpad'

@@ -1,0 +1,61 @@
+{
+  "dashboard": {
+    "states": [
+      {
+        "label": "{{valve.value}}"
+      }
+    ],
+    "actions": [
+      {
+        "displayType": "pushButton",
+        "pushButton": {
+          "command": "close",
+          "label": "Close"
+        }
+      }
+    ]
+  },
+  "detailView": [
+    {
+      "label": "Valve",
+      "displayType": "state",
+      "state": {
+        "label": "{{valve.value}}",
+        "value": "valve.value"
+      }
+    },
+    {
+      "label": "Close",
+      "displayType": "pushButton",
+      "pushButton": {
+        "command": "close",
+        "label": "Close"
+      }
+    }
+  ],
+  "automation": {
+    "conditions": [
+      {
+        "label": "Valve",
+        "displayType": "list",
+        "list": {
+          "alternatives": [
+            { "key": "closed", "value": "Closed" },
+            { "key": "unknown", "value": "Unknown" }
+          ],
+          "value": "valve.value"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "label": "Close",
+        "displayType": "pushButton",
+        "pushButton": {
+          "command": "close",
+          "label": "Close"
+        }
+      }
+    ]
+  }
+}

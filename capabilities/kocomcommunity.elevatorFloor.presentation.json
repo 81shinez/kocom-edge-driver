@@ -1,0 +1,32 @@
+{
+  "dashboard": {
+    "states": [
+      {
+        "label": "{{floor.value}}"
+      }
+    ],
+    "actions": []
+  },
+  "detailView": [
+    {
+      "label": "Floor",
+      "displayType": "state",
+      "state": {
+        "label": "{{floor.value}}",
+        "value": "floor.value"
+      }
+    }
+  ],
+  "automation": {
+    "conditions": [
+      {
+        "label": "Floor",
+        "displayType": "textField",
+        "textField": {
+          "value": "floor.value"
+        }
+      }
+    ],
+    "actions": []
+  }
+}

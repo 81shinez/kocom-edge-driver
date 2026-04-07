@@ -1,0 +1,12 @@
+name: door-pulse
+components:
+  - id: main
+    capabilities:
+      - id: momentary
+        version: 1
+      - id: contactSensor
+        version: 1
+      - id: refresh
+        version: 1
+    categories:
+      - name: Door

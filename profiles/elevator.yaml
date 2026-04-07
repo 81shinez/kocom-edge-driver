@@ -1,0 +1,14 @@
+name: elevator
+components:
+  - id: main
+    capabilities:
+      - id: momentary
+        version: 1
+      - id: kocomcommunity.elevatorDirection
+        version: 1
+      - id: kocomcommunity.elevatorFloor
+        version: 1
+      - id: refresh
+        version: 1
+    categories:
+      - name: RemoteController

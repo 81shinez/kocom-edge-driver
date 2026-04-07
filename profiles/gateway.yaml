@@ -1,0 +1,71 @@
+name: gateway
+components:
+  - id: main
+    capabilities:
+      - id: refresh
+        version: 1
+    categories:
+      - name: Hub
+preferences:
+  - name: host
+    title: Bridge Host
+    description: TCP-RS485 브리지의 IP 또는 호스트명
+    required: false
+    preferenceType: string
+    definition:
+      stringType: text
+      minLength: 0
+      maxLength: 128
+      default: ''
+  - name: port
+    title: Bridge Port
+    description: TCP-RS485 브리지 포트
+    required: false
+    preferenceType: integer
+    definition:
+      minimum: 1
+      maximum: 65535
+      default: 8899
+  - name: protocolPreset
+    title: Protocol Preset
+    description: 기본 코콤 프리셋 선택
+    required: false
+    preferenceType: enumeration
+    definition:
+      options:
+        kocom-default: Kocom Default
+      default: kocom-default
+  - name: deviceCodeOverrides
+    title: Device Code Overrides
+    description: 장치 코드 override JSON
+    required: false
+    preferenceType: string
+    definition:
+      stringType: paragraph
+      minLength: 0
+      maxLength: 4096
+      default: ''
+  - name: commandOverrides
+    title: Command Overrides
+    description: raw packet command override JSON
+    required: false
+    preferenceType: string
+    definition:
+      stringType: paragraph
+      minLength: 0
+      maxLength: 8192
+      default: ''
+  - name: debugUnknownFrames
+    title: Debug Unknown Frames
+    description: 미매핑 frame 로그 출력
+    required: false
+    preferenceType: boolean
+    definition:
+      default: false
+  - name: captureSpecialFrames
+    title: Capture Special Frames
+    description: 특수 기능 frame capture 활성화
+    required: false
+    preferenceType: boolean
+    definition:
+      default: false

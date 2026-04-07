@@ -1,0 +1,21 @@
+{
+  "id": "kocomcommunity.elevatorFloor",
+  "version": 1,
+  "status": "proposed",
+  "name": "Elevator Floor",
+  "attributes": {
+    "floor": {
+      "schema": {
+        "type": "string",
+        "maxLength": 8
+      },
+      "setter": "setFloor",
+      "enumCommands": []
+    }
+  },
+  "commands": {},
+  "metadata": {
+    "mnmn": "SmartThingsCommunity",
+    "vid": "kocomcommunity.elevatorFloor"
+  }
+}
