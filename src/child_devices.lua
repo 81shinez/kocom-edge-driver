@@ -1,34 +1,16 @@
 local log = require "log"
 
 local constants = require "constants"
+local child_key = require "child_key"
 
 local child_devices = {}
 
-local function split_key(value)
-  local parts = {}
-  for item in string.gmatch(value or "", "([^%-]+)") do
-    table.insert(parts, item)
-  end
-  return parts
-end
-
 function child_devices.make_child_key(device_type, room_index, device_index, sub_type)
-  return string.format("%s-%d-%d-%s", device_type, room_index or 0, device_index or 0, sub_type or constants.SUB_TYPES.none)
+  return child_key.make(device_type, room_index, device_index, sub_type)
 end
 
 function child_devices.parse_child_key(key)
-  local parts = split_key(key)
-  if #parts ~= 4 then
-    return nil
-  end
-
-  return {
-    device_type = parts[1],
-    room_index = tonumber(parts[2]) or 0,
-    device_index = tonumber(parts[3]) or 0,
-    sub_type = parts[4],
-    key = key,
-  }
+  return child_key.parse(key)
 end
 
 function child_devices.profile_for_device_type(device_type)
@@ -107,20 +89,30 @@ function child_devices.iter_children(driver, parent_device)
   return children
 end
 
+local function override_target_to_parsed(override_key)
+  local parsed = child_key.parse(override_key)
+  if parsed ~= nil then
+    return parsed
+  end
+
+  if constants.PROFILES[override_key] == nil then
+    return nil
+  end
+
+  return {
+    key = child_key.make(override_key, 0, 0, constants.SUB_TYPES.none),
+    device_type = override_key,
+    room_index = 0,
+    device_index = 0,
+    sub_type = constants.SUB_TYPES.none,
+  }
+end
+
 function child_devices.ensure_override_children(driver, parent_device, config)
   local overrides = config.command_overrides or {}
 
   for override_key, _ in pairs(overrides) do
-    local parsed = child_devices.parse_child_key(override_key)
-    if parsed == nil and constants.PROFILES[override_key] ~= nil then
-      parsed = {
-        key = child_devices.make_child_key(override_key, 0, 0, constants.SUB_TYPES.none),
-        device_type = override_key,
-        room_index = 0,
-        device_index = 0,
-        sub_type = constants.SUB_TYPES.none,
-      }
-    end
+    local parsed = override_target_to_parsed(override_key)
 
     if parsed ~= nil and constants.PROFILES[parsed.device_type] ~= nil then
       local existing = child_devices.find_child(parent_device, parsed.key)

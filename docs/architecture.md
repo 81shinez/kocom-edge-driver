@@ -59,6 +59,7 @@
 - preference 값 정규화
 - 기본 포트 처리
 - JSON override 파싱
+- command override packet 사전 컴파일/검증
 - 유효하지 않은 설정을 사용자 로그로 노출
 
 ### `src/child_devices.lua`
@@ -67,6 +68,11 @@
 - profile 선택
 - label 생성
 - child metadata 생성
+
+### `src/child_key.lua`
+
+- child key 생성/파싱 규칙을 단일 모듈로 제공
+- `child_devices.lua`, `kocom/protocol.lua`, `kocom/registry.lua`에서 공통 사용
 
 ### `src/emitter.lua`
 
@@ -98,11 +104,32 @@
 
 ### `src/kocom/session.lua`
 
-- 부모별 persistent TCP session
-- command queue
-- confirmation pending 처리
-- retry/backoff
+- 부모별 persistent TCP session 루프 오케스트레이션
+- command queue dispatch
+- control message 처리(`monitor`, `refresh`, `stop`)
+
+### `src/kocom/session_state.lua`
+
 - 부모/자식 online/offline 전파
+- child persisted state로 registry seed
+- session 종료 시점 정리
+
+### `src/kocom/session_connection.lua`
+
+- connect/disconnect/backoff
+- idle gap 및 packet send 처리
+
+### `src/kocom/session_frames.lua`
+
+- socket 수신 chunk 처리
+- frame 검증/디코딩/child event 반영
+- special frame capture 로그 처리
+
+### `src/kocom/session_commands.lua`
+
+- command packet 생성 요청
+- confirmation matcher 대기
+- retry 시퀀스 처리
 
 ## 부모/자식 데이터 모델
 

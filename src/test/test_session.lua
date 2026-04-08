@@ -20,6 +20,10 @@ local function load_session_module()
     "emitter",
     "kocom.parser",
     "kocom.protocol",
+    "kocom.session_commands",
+    "kocom.session_connection",
+    "kocom.session_frames",
+    "kocom.session_state",
     "kocom.transport",
     "kocom.session",
   }

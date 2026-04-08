@@ -24,7 +24,26 @@ test.register_coroutine_test(
     assert(config.is_configured == true, "host should make device configured")
     assert(config.device_code_overrides.light == "0x0E", "device override should be parsed")
     assert(config.command_overrides.door.push.packetHex == "AA55", "command override should be parsed")
+    assert(config.command_overrides_compiled.door.push.packet ~= nil, "command override packet should be precompiled")
+    assert(config.command_overrides_compiled.door.push.timeout_sec == 0, "missing timeout should default to zero")
     assert(config.debug_unknown_frames == true, "debug flag should be preserved")
+  end
+)
+
+test.register_coroutine_test(
+  "preferences should drop invalid command override entries during compile",
+  function()
+    local device = {
+      id = "parent-2",
+      preferences = {
+        host = "192.168.0.20",
+        commandOverrides = "{\"door\":{\"push\":{\"packetHex\":\"GG\"}}}",
+      },
+    }
+
+    local config = preferences.build_parent_config(device)
+    assert(config.command_overrides.door.push.packetHex == "GG", "raw override should remain visible")
+    assert(config.command_overrides_compiled.door == nil, "invalid compiled entry should be omitted")
   end
 )
 

@@ -46,7 +46,13 @@ function mappings.profile_for_device_type(device_type)
 end
 
 function mappings.override_for_action(config, child_key, device_type, action)
-  local overrides = config and config.command_overrides or {}
+  local overrides
+  if config and config.command_overrides_compiled ~= nil then
+    overrides = config.command_overrides_compiled
+  else
+    overrides = config and config.command_overrides or {}
+  end
+
   local exact = overrides[child_key]
   if type(exact) == "table" and type(exact[action]) == "table" then
     return exact[action]

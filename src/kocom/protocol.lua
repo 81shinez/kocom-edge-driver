@@ -1,5 +1,6 @@
 local log = require "log"
 
+local child_key = require "child_key"
 local constants = require "constants"
 local mappings = require "kocom.mappings"
 
@@ -17,10 +18,6 @@ local function bytes_to_hex(raw)
   return (raw:gsub(".", function(char)
     return string.format("%02X", string.byte(char))
   end))
-end
-
-local function build_key(device_type, room_index, device_index, sub_type)
-  return string.format("%s-%d-%d-%s", device_type, room_index or 0, device_index or 0, sub_type or constants.SUB_TYPES.none)
 end
 
 local function byte_array_from_string(raw)
@@ -65,7 +62,7 @@ end
 
 local function make_update(device_type, room_index, device_index, value, profile, packet_hex)
   return {
-    key = build_key(device_type, room_index, device_index, constants.SUB_TYPES.none),
+    key = child_key.make(device_type, room_index, device_index, constants.SUB_TYPES.none),
     device_type = device_type,
     room_index = room_index,
     device_index = device_index,
@@ -213,6 +210,21 @@ local function parse_air_quality(frame, updates)
   }, constants.PROFILES.air_quality, frame.packet_hex))
 end
 
+local frame_decoders = {
+  [constants.DEVICE_TYPES.light] = function(frame, updates)
+    parse_switch_like(frame, constants.DEVICE_TYPES.light, updates)
+  end,
+  [constants.DEVICE_TYPES.outlet] = function(frame, updates)
+    parse_switch_like(frame, constants.DEVICE_TYPES.outlet, updates)
+  end,
+  [constants.DEVICE_TYPES.thermostat] = parse_thermostat,
+  [constants.DEVICE_TYPES.ventilation] = parse_ventilation,
+  [constants.DEVICE_TYPES.gas] = parse_gas,
+  [constants.DEVICE_TYPES.elevator] = parse_elevator,
+  [constants.DEVICE_TYPES.motion] = parse_motion,
+  [constants.DEVICE_TYPES.air_quality] = parse_air_quality,
+}
+
 function protocol.inspect_frame(raw, config)
   local raw_bytes = byte_array_from_string(raw)
   local peer_code, room_index = resolve_peer(raw_bytes)
@@ -256,36 +268,12 @@ function protocol.decode_frame(raw, config)
   end
 
   local updates = {}
-  if device_type == constants.DEVICE_TYPES.light or device_type == constants.DEVICE_TYPES.outlet then
-    parse_switch_like(frame, device_type, updates)
-  elseif device_type == constants.DEVICE_TYPES.thermostat then
-    parse_thermostat(frame, updates)
-  elseif device_type == constants.DEVICE_TYPES.ventilation then
-    parse_ventilation(frame, updates)
-  elseif device_type == constants.DEVICE_TYPES.gas then
-    parse_gas(frame, updates)
-  elseif device_type == constants.DEVICE_TYPES.elevator then
-    parse_elevator(frame, updates)
-  elseif device_type == constants.DEVICE_TYPES.motion then
-    parse_motion(frame, updates)
-  elseif device_type == constants.DEVICE_TYPES.air_quality then
-    parse_air_quality(frame, updates)
+  local decoder = frame_decoders[device_type]
+  if decoder ~= nil then
+    decoder(frame, updates)
   end
 
   return updates
-end
-
-local function parse_child_key(child_key)
-  local device_type, room_index, device_index, sub_type = child_key:match("^([%w_]+)%-(%d+)%-(%d+)%-([%w_]+)$")
-  if device_type == nil then
-    return nil
-  end
-  return {
-    device_type = device_type,
-    room_index = tonumber(room_index),
-    device_index = tonumber(device_index),
-    sub_type = sub_type,
-  }
 end
 
 local function normalize_level(level)
@@ -316,14 +304,18 @@ local function build_switch_packet(config, registry, parsed, action)
     if index == parsed.device_index then
       is_on = action == "turn_on"
     elseif is_on == nil then
-      return nil, nil, nil, string.format("missing cached sibling state for %s-%d-%d-none", parsed.device_type, parsed.room_index, index)
+      return nil, nil, nil, string.format(
+        "missing cached sibling state for %s",
+        child_key.make(parsed.device_type, parsed.room_index, index, constants.SUB_TYPES.none)
+      )
     end
     payload[index + 1] = is_on and 0xFF or 0x00
   end
 
   local body = build_base_body(mappings.device_code_for(config, parsed.device_type), parsed.room_index, 0x00, payload)
   return build_packet(body), function(update)
-    return update.key == build_key(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none) and update.value == (action == "turn_on")
+    return update.key == child_key.make(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
+      and update.value == (action == "turn_on")
   end, constants.CONFIRM_TIMEOUT_SEC
 end
 
@@ -339,7 +331,7 @@ local function build_thermostat_packet(config, parsed, action, args)
   end
 
   local body = build_base_body(mappings.device_code_for(config, parsed.device_type), parsed.room_index, 0x00, payload)
-  local expected_key = build_key(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
+  local expected_key = child_key.make(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
   local timeout = action == "set_heating_setpoint" and math.max(constants.CONFIRM_TIMEOUT_SEC, 1.5) or constants.CONFIRM_TIMEOUT_SEC
   local matcher = function(update)
     if update.key ~= expected_key or type(update.value) ~= "table" then
@@ -369,7 +361,7 @@ local function build_ventilation_packet(config, parsed, action, args)
   end
 
   local body = build_base_body(mappings.device_code_for(config, parsed.device_type), parsed.room_index, 0x00, payload)
-  local expected_key = build_key(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
+  local expected_key = child_key.make(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
   local matcher = function(update)
     if update.key ~= expected_key or type(update.value) ~= "table" then
       return false
@@ -390,7 +382,7 @@ local function build_gas_packet(config, parsed, action)
     return nil, nil, nil, "unsupported gas action"
   end
   local body = build_base_body(mappings.device_code_for(config, parsed.device_type), parsed.room_index, 0x02, { 0, 0, 0, 0, 0, 0, 0, 0 })
-  local expected_key = build_key(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
+  local expected_key = child_key.make(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
   local matcher = function(update)
     return update.key == expected_key and type(update.value) == "table" and update.value.valve == "closed"
   end
@@ -401,12 +393,33 @@ local function build_elevator_packet(config, parsed)
   local body = build_base_body(mappings.device_code_for(config, parsed.device_type), parsed.room_index, 0x01, {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   })
-  local expected_key = build_key(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
+  local expected_key = child_key.make(parsed.device_type, parsed.room_index, parsed.device_index, constants.SUB_TYPES.none)
   local matcher = function(update)
     return update.key == expected_key
   end
   return build_packet(body), matcher, constants.CONFIRM_TIMEOUT_SEC
 end
+
+local command_builders = {
+  [constants.DEVICE_TYPES.light] = function(config, registry, parsed, action)
+    return build_switch_packet(config, registry, parsed, action)
+  end,
+  [constants.DEVICE_TYPES.outlet] = function(config, registry, parsed, action)
+    return build_switch_packet(config, registry, parsed, action)
+  end,
+  [constants.DEVICE_TYPES.thermostat] = function(config, _, parsed, action, args)
+    return build_thermostat_packet(config, parsed, action, args)
+  end,
+  [constants.DEVICE_TYPES.ventilation] = function(config, _, parsed, action, args)
+    return build_ventilation_packet(config, parsed, action, args)
+  end,
+  [constants.DEVICE_TYPES.gas] = function(config, _, parsed, action)
+    return build_gas_packet(config, parsed, action)
+  end,
+  [constants.DEVICE_TYPES.elevator] = function(config, _, parsed)
+    return build_elevator_packet(config, parsed)
+  end,
+}
 
 local function override_packet(override)
   local bytes = {}
@@ -421,14 +434,19 @@ local function override_packet(override)
   return bytes_to_string(bytes)
 end
 
-function protocol.build_command(config, registry, child_key, action, args)
-  local parsed = parse_child_key(child_key)
+function protocol.build_command(config, registry, child_key_value, action, args)
+  local parsed = child_key.parse(child_key_value)
   if parsed == nil then
     return nil, nil, nil, "invalid child key"
   end
 
-  local override = mappings.override_for_action(config, child_key, parsed.device_type, action)
+  local override = mappings.override_for_action(config, child_key_value, parsed.device_type, action)
   if override ~= nil then
+    if type(override.packet) == "string" then
+      local timeout_sec = tonumber(override.timeout_sec) or 0
+      return override.packet, nil, math.max(timeout_sec, 0)
+    end
+
     local packet = override_packet(override)
     if packet ~= nil then
       local timeout_override = tonumber(override.timeoutMs)
@@ -437,16 +455,9 @@ function protocol.build_command(config, registry, child_key, action, args)
     end
   end
 
-  if parsed.device_type == constants.DEVICE_TYPES.light or parsed.device_type == constants.DEVICE_TYPES.outlet then
-    return build_switch_packet(config, registry, parsed, action)
-  elseif parsed.device_type == constants.DEVICE_TYPES.thermostat then
-    return build_thermostat_packet(config, parsed, action, args)
-  elseif parsed.device_type == constants.DEVICE_TYPES.ventilation then
-    return build_ventilation_packet(config, parsed, action, args)
-  elseif parsed.device_type == constants.DEVICE_TYPES.gas then
-    return build_gas_packet(config, parsed, action)
-  elseif parsed.device_type == constants.DEVICE_TYPES.elevator then
-    return build_elevator_packet(config, parsed)
+  local builder = command_builders[parsed.device_type]
+  if builder ~= nil then
+    return builder(config, registry, parsed, action, args)
   end
 
   return nil, nil, nil, "unsupported device type or override missing"

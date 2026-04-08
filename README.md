@@ -160,8 +160,9 @@ src/lifecycle_handlers.lua 부모/자식 lifecycle
 src/command_handlers.lua   capability command -> protocol command
 src/preferences.lua        preference 검증 및 runtime config
 src/child_devices.lua      child key, label, metadata
+src/child_key.lua          child key 생성/파싱 단일화 모듈
 src/emitter.lua            내부 상태 -> capability event
-src/kocom/                 transport, parser, protocol, registry, session
+src/kocom/                 transport, parser, protocol, registry, session + session_* helpers
 src/test/                  integration_test 스타일 테스트
 LICENSE                    프로젝트 라이선스
 ```

@@ -32,6 +32,68 @@ local function normalize_port(value)
   return num
 end
 
+local function decode_packet_hex(packet_hex)
+  if type(packet_hex) ~= "string" then
+    return nil, "packetHex must be string"
+  end
+
+  local hex = packet_hex:gsub("%s+", "")
+  if hex == "" then
+    return nil, "packetHex is empty"
+  end
+  if #hex % 2 ~= 0 then
+    return nil, "packetHex must have even length"
+  end
+
+  local bytes = {}
+  for index = 1, #hex, 2 do
+    local value = tonumber(hex:sub(index, index + 1), 16)
+    if value == nil then
+      return nil, "packetHex contains non-hex characters"
+    end
+    bytes[#bytes + 1] = string.char(value)
+  end
+  return table.concat(bytes)
+end
+
+local function compile_command_overrides(device_id, command_overrides)
+  local compiled = {}
+
+  for override_target, action_map in pairs(command_overrides or {}) do
+    if type(action_map) ~= "table" then
+      log.warn(string.format("[%s] invalid commandOverrides target %s: expected object", device_id, tostring(override_target)))
+    else
+      for action, override in pairs(action_map) do
+        if type(override) ~= "table" then
+          log.warn(string.format("[%s] invalid commandOverrides entry %s.%s: expected object", device_id, tostring(override_target), tostring(action)))
+        else
+          local packet, packet_err = decode_packet_hex(override.packetHex)
+          if packet == nil then
+            log.warn(string.format(
+              "[%s] invalid commandOverrides packet for %s.%s (%s)",
+              device_id,
+              tostring(override_target),
+              tostring(action),
+              packet_err or "unknown"
+            ))
+          else
+            local timeout_ms = tonumber(override.timeoutMs)
+            local timeout_sec = timeout_ms and math.max(timeout_ms / 1000, 0) or 0
+
+            compiled[override_target] = compiled[override_target] or {}
+            compiled[override_target][action] = {
+              packet = packet,
+              timeout_sec = timeout_sec,
+            }
+          end
+        end
+      end
+    end
+  end
+
+  return compiled
+end
+
 function preferences.build_parent_config(device)
   local pref = device.preferences or {}
   local host = tostring(pref.host or ""):match("^%s*(.-)%s*$")
@@ -53,6 +115,7 @@ function preferences.build_parent_config(device)
     protocol_preset = protocol_preset,
     device_code_overrides = device_code_overrides,
     command_overrides = command_overrides,
+    command_overrides_compiled = compile_command_overrides(device.id, command_overrides),
     debug_unknown_frames = pref.debugUnknownFrames == true,
     capture_special_frames = pref.captureSpecialFrames == true,
   }
