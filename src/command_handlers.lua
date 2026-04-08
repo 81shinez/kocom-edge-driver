@@ -1,9 +1,23 @@
 local capabilities = require "st.capabilities"
 local log = require "log"
 
+local child_key = require "child_key"
 local constants = require "constants"
 
 local command_handlers = {}
+
+local function resolve_child_key(device)
+  return device.parent_assigned_child_key or device:get_field(constants.FIELDS.child_key)
+end
+
+local function resolve_child_type(device)
+  local key = resolve_child_key(device)
+  local parsed = key and child_key.parse(key) or nil
+  if parsed ~= nil then
+    return parsed.device_type
+  end
+  return device:get_field(constants.FIELDS.child_device_type)
+end
 
 local function get_session(driver, device)
   local parent_id = device.parent_device_id or device.id
@@ -18,14 +32,14 @@ local function enqueue_command(driver, device, action, args)
     return
   end
 
-  local child_key = device.parent_assigned_child_key or device:get_field(constants.FIELDS.child_key)
-  if child_key == nil and device.parent_device_id ~= nil then
+  local key = resolve_child_key(device)
+  if key == nil and device.parent_device_id ~= nil then
     log.warn(string.format("[%s] missing child key for command %s", device.id, action))
     return
   end
 
   session:enqueue_command({
-    child_key = child_key,
+    child_key = key,
     action = action,
     args = args or {},
     source_device_id = device.id,
@@ -33,10 +47,19 @@ local function enqueue_command(driver, device, action, args)
 end
 
 function command_handlers.handle_switch_on(driver, device)
+  if resolve_child_type(device) == constants.DEVICE_TYPES.elevator then
+    enqueue_command(driver, device, "push")
+    return
+  end
   enqueue_command(driver, device, "turn_on")
 end
 
 function command_handlers.handle_switch_off(driver, device)
+  if resolve_child_type(device) == constants.DEVICE_TYPES.elevator then
+    -- Elevator controls are pulse-like; "off" should not trigger another call.
+    command_handlers.handle_refresh(driver, device)
+    return
+  end
   enqueue_command(driver, device, "turn_off")
 end
 
@@ -63,6 +86,15 @@ function command_handlers.handle_close_only_valve(driver, device)
   enqueue_command(driver, device, "close")
 end
 
+function command_handlers.handle_valve_close(driver, device)
+  enqueue_command(driver, device, "close")
+end
+
+function command_handlers.handle_valve_open(driver, device)
+  log.warn(string.format("[%s] open command ignored for close-only gas valve", device.id))
+  command_handlers.handle_refresh(driver, device)
+end
+
 function command_handlers.handle_refresh(driver, device)
   local session = get_session(driver, device)
   if session == nil then
@@ -72,13 +104,13 @@ function command_handlers.handle_refresh(driver, device)
   if device.parent_device_id == nil then
     session:enqueue_control({ type = "refresh" })
   else
-    local child_key = device.parent_assigned_child_key or device:get_field(constants.FIELDS.child_key)
-    session:replay_child(child_key)
+    session:replay_child(resolve_child_key(device))
   end
 end
 
 function command_handlers.capability_handlers()
   local close_only = capabilities[constants.CAPABILITIES.close_only_valve]
+  local valve = capabilities.valve
 
   local handlers = {
     [capabilities.switch.ID] = {
@@ -105,6 +137,13 @@ function command_handlers.capability_handlers()
   if close_only ~= nil and close_only.commands ~= nil and close_only.commands.close ~= nil then
     handlers[close_only.ID] = {
       [close_only.commands.close.NAME] = command_handlers.handle_close_only_valve,
+    }
+  end
+
+  if valve ~= nil and valve.commands ~= nil and valve.commands.close ~= nil and valve.commands.open ~= nil then
+    handlers[valve.ID] = {
+      [valve.commands.close.NAME] = command_handlers.handle_valve_close,
+      [valve.commands.open.NAME] = command_handlers.handle_valve_open,
     }
   end
 

@@ -128,3 +128,9 @@
 
 - 공동현관문 / 현관문 / 초인종은 기본적으로 frame capture와 override 기반으로 지원한다.
 - 실측 캡처가 누적되면 preset에 편입한다.
+
+## 외부 공유 매핑 업데이트 (2026-04-08)
+
+- 엘리베이터 명령 매핑은 `push`, `turn_on`, `turn_off` 액션 형태를 모두 받아 동일한 호출 패킷(`command=0x01`)으로 전송한다.
+- 엘리베이터 `active`는 `called`, `upward`, `downward`일 때만 `true`이며, `idle`/`arrival`은 switch 미러링에서 비활성으로 처리한다.
+- 가스 프레임 `command=0x01`은 내부적으로 non-closed 상태(`unknown`)를 유지하고, 런타임 이벤트에서는 외부 연동을 위해 표준 `valve.open`으로 매핑한다(명령은 여전히 close-only).

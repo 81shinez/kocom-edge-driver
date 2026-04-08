@@ -73,6 +73,57 @@ test.register_coroutine_test(
   end
 )
 
+test.register_coroutine_test(
+  "protocol should build elevator packet from switch on action",
+  function()
+    local registry = Registry.new()
+    local packet = protocol.build_command({}, registry, "elevator-1-0-none", "turn_on", {})
+    assert(packet ~= nil, "packet should be generated for switch on")
+    assert(string.byte(packet, 10) == 0x01, "command should remain elevator call")
+  end
+)
+
+test.register_coroutine_test(
+  "protocol should decode elevator idle frame as inactive",
+  function()
+    local frame = build_frame({
+      0x30, 0xBC, 0x00, 0x01, 0x00, 0x44, 0x03, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    })
+
+    local updates = protocol.decode_frame(frame, {})
+    assert(#updates == 1, "elevator frame should decode into one update")
+    assert(type(updates[1].value) == "table", "elevator value should be table")
+    assert(updates[1].value.direction == "idle", "direction should be idle")
+    assert(updates[1].value.active == false, "idle direction should be inactive for switch mirroring")
+  end
+)
+
+test.register_coroutine_test(
+  "protocol should decode gas command 0x01 as non-closed state",
+  function()
+    local frame = build_frame({
+      0x30, 0xBC, 0x00, 0x01, 0x00, 0x2C, 0x01, 0x01,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    })
+
+    local updates = protocol.decode_frame(frame, {})
+    assert(#updates == 1, "gas frame should decode into one update")
+    assert(updates[1].device_type == "gas", "device type should be gas")
+    assert(updates[1].value.valve == "unknown", "0x01 should be treated as non-closed state")
+  end
+)
+
+test.register_coroutine_test(
+  "protocol should reject unsupported gas open command",
+  function()
+    local registry = Registry.new()
+    local packet, _, _, err = protocol.build_command({}, registry, "gas-1-0-none", "open", {})
+    assert(packet == nil, "gas open packet should not be generated")
+    assert(err ~= nil and err:match("unsupported gas action"), "gas open should be explicitly rejected")
+  end
+)
+
 if test.run_registered_tests then
   test.run_registered_tests()
 else

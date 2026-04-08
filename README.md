@@ -196,3 +196,12 @@ LICENSE                    프로젝트 라이선스
 - override나 프로토콜 해석을 바꾸면 관련 문서도 같은 범위에서 함께 갱신합니다.
 - 지원 범위, 설치 흐름, 버전 규칙, 배포 메타가 바뀌면 `README.md`도 같은 변경 단위에서 함께 갱신합니다.
 - 현재 배포 기준 custom capability namespace는 `earthgarden50570`입니다. 다른 계정으로 배포할 때는 이 namespace와 capability 원본을 함께 조정합니다.
+
+## 외부 서비스 공유 (Apple Home)
+
+공유 호환성 매핑, 공식 문서 링크, 설정 순서는 [docs/cross-service-sharing.md](docs/cross-service-sharing.md)에서 확인할 수 있다.
+
+현재 드라이버 동작:
+- 엘리베이터 child는 외부 서비스 트리거용 `switch`를 노출하며 `on`이 호출 명령으로 매핑된다.
+- 가스 child는 표준 `valve`와 기존 close-only custom capability를 함께 노출한다.
+- 가스 `open` 명령은 안전 정책상 차단된다.

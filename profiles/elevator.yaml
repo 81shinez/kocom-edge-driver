@@ -2,6 +2,8 @@ name: elevator
 components:
   - id: main
     capabilities:
+      - id: switch
+        version: 1
       - id: momentary
         version: 1
       - id: earthgarden50570.elevatorDirection
@@ -11,4 +13,4 @@ components:
       - id: refresh
         version: 1
     categories:
-      - name: RemoteController
+      - name: Switch

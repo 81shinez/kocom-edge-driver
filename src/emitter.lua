@@ -80,6 +80,10 @@ local function apply_doorbell_update(device)
 end
 
 local function apply_elevator_update(device, update)
+  if update.value.active ~= nil then
+    emit_switch(device, update.value.active == true)
+  end
+
   local direction_cap = capabilities[constants.CAPABILITIES.elevator_direction]
   local floor_cap = capabilities[constants.CAPABILITIES.elevator_floor]
   if direction_cap and update.value.direction ~= nil then
@@ -94,6 +98,15 @@ local function apply_gas_update(device, update)
   local gas_cap = capabilities[constants.CAPABILITIES.close_only_valve]
   if gas_cap and update.value.valve ~= nil then
     safe_emit(device, gas_cap.valve(update.value.valve))
+  end
+
+  if capabilities.valve ~= nil and capabilities.valve.valve ~= nil then
+    if update.value.valve == "closed" then
+      safe_emit(device, capabilities.valve.valve.closed())
+    elseif update.value.valve == "unknown" then
+      -- Gas status frames expose "closed" explicitly; the non-closed state is treated as open for interoperability.
+      safe_emit(device, capabilities.valve.valve.open())
+    end
   end
 end
 

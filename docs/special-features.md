@@ -58,3 +58,9 @@
 3. hub logs에서 raw frame과 child key 후보를 확인한다.
 4. `docs/protocol.md`와 이 문서에 결과를 기록한다.
 5. 필요 시 `commandOverrides` 또는 preset을 추가한다.
+
+## 외부 서비스 공유 메모 (2026-04-08)
+
+- 엘리베이터는 SmartThings용 custom 방향/층 이벤트를 유지하면서, 외부 연동을 위해 표준 `switch`로 호출 상태를 미러링한다.
+- 가스는 close-only custom capability를 유지하면서, 외부 연동용 표준 `valve` 상태를 함께 미러링한다.
+- 안전 정책은 동일하다: 가스는 close-only를 유지하며 `open` 명령은 거부한다.

@@ -31,13 +31,19 @@ It complements the official SmartThings device profile documentation and the Sma
 - Both override preferences use `maxLength: 255` and default to `{}`.
   - This is a conservative packaging-safe limit confirmed by upload probes.
 
-## Gas profile decision
+## 가스 프로필 결정
 
-- The `gas-close-only` child profile uses category `Others`.
-- Using valve-like categories with only the custom `earthgarden50570.closeOnlyValve` capability caused package upload failures.
-- `Others` avoids implying an unsafe standard open/close valve UI while keeping the close-only custom capability intact.
+- 초기(v1) 기준: custom-only 가스 프로필 + `Others` 카테고리.
+- custom `earthgarden50570.closeOnlyValve`만 포함한 상태에서 valve 계열 카테고리를 쓰면 패키지 업로드 실패가 발생했다.
+- 현재(2026-04-08) 기준: `gas-close-only`는 표준 `valve` + custom close-only capability + `WaterValve` 카테고리를 사용하고, 런타임에서 `open`을 차단한다.
 
 ## Deployment rule
 
 - If a future profile or preference change causes upload `422`, reproduce it with a minimal single-profile probe before changing runtime code.
 - Prefer packaging-safe standard primitives over richer profile metadata when the SmartThings API behavior diverges from the general documentation.
+
+## 2026-04-08 프로필 호환성 업데이트
+
+- `gas-close-only`는 외부 공유 호환성을 위해 표준 `valve` + custom `earthgarden50570.closeOnlyValve` 조합, `WaterValve` 카테고리로 유지한다.
+- 로컬 패키지 빌드 검증(`edge:drivers:package --build-only`)은 해당 메타데이터로 통과했다.
+- 런타임 안전 정책은 유지한다: 가스 `open` 명령 경로는 비활성화 상태를 유지한다.

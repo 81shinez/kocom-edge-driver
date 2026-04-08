@@ -181,10 +181,11 @@ local function parse_elevator(frame, updates)
     direction = "arrival"
   end
 
+  local active = direction == "called" or direction == "downward" or direction == "upward"
   table.insert(updates, make_update(constants.DEVICE_TYPES.elevator, frame.room_index, 0, {
     direction = direction,
     floor = parse_floor(frame),
-    active = frame.payload[1] ~= 0x03,
+    active = active,
   }, constants.PROFILES.elevator, frame.packet_hex))
 end
 
@@ -389,7 +390,11 @@ local function build_gas_packet(config, parsed, action)
   return build_packet(body), matcher, math.max(constants.CONFIRM_TIMEOUT_SEC, 1.5)
 end
 
-local function build_elevator_packet(config, parsed)
+local function build_elevator_packet(config, parsed, action)
+  if action ~= "push" and action ~= "turn_on" and action ~= "turn_off" then
+    return nil, nil, nil, "unsupported elevator action"
+  end
+
   local body = build_base_body(mappings.device_code_for(config, parsed.device_type), parsed.room_index, 0x01, {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   })
@@ -416,8 +421,8 @@ local command_builders = {
   [constants.DEVICE_TYPES.gas] = function(config, _, parsed, action)
     return build_gas_packet(config, parsed, action)
   end,
-  [constants.DEVICE_TYPES.elevator] = function(config, _, parsed)
-    return build_elevator_packet(config, parsed)
+  [constants.DEVICE_TYPES.elevator] = function(config, _, parsed, action)
+    return build_elevator_packet(config, parsed, action)
   end,
 }
 
